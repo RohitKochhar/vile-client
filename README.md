@@ -1,6 +1,6 @@
 ## vile
 
-Command Line Interface (CLI) for vile servers
+Command Line Interface (CLI) for vile servers with full client-side encryption
 
 ### Synopsis
 

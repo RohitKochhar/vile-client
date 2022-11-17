@@ -22,10 +22,7 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"fmt"
-	"io"
-	"net/http"
-	"strings"
+	"rohitsingh/vile/vile/actions"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -41,32 +38,7 @@ Gets a value from remote vile server
 Retrieves the stored value associated with the provided key from the remote vile server
 	`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) > 1 {
-			// ToDo: Add support for multiple values
-			return fmt.Errorf("cannot get multiple values")
-		}
-		if len(args) == 0 {
-			return fmt.Errorf("no key provided")
-		}
-		// Use configuration specified in yaml
-		host := viper.GetViper().Get("host")
-		port := viper.GetViper().Get("port")
-		url := fmt.Sprintf("http://%s:%d/v1/key/%s", host, port, args[0])
-		r, err := http.Get(url)
-		if err != nil {
-			return err
-		}
-		switch {
-		case strings.Contains(r.Header.Get("Content-Type"), "text/plain"):
-			body, err := io.ReadAll(r.Body)
-			if err != nil {
-				return err
-			}
-			print(string(body))
-		default:
-			return fmt.Errorf("unsupported Content-Type: %q", r.Header.Get("Content-Type"))
-		}
-		return nil
+		return actions.Get(args, viper.GetViper())
 	},
 }
 

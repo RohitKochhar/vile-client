@@ -22,9 +22,7 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"bytes"
-	"fmt"
-	"net/http"
+	"rohitsingh/vile/vile/actions"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -40,34 +38,7 @@ Adds a value to remote vile server
 Adds the provided key value pair to the remote vile server
 	`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		if len(args) > 2 {
-			return fmt.Errorf("cannot add multiple key value pairs")
-		}
-		if len(args) < 2 {
-			return fmt.Errorf("no key value pair provided")
-		}
-		// Use configuration specified in yaml
-		host := viper.GetViper().Get("host")
-		port := viper.GetViper().Get("port")
-		url := fmt.Sprintf("http://%s:%d/v1/key/%s", host, port, args[0])
-		req, err := http.NewRequest(
-			http.MethodPut,
-			url,
-			bytes.NewBuffer([]byte(args[1])),
-		)
-		if err != nil {
-			return fmt.Errorf("error while defining PUT request: %q", err)
-		}
-		req.Header.Set("Content-Type", "text/plain")
-		resp, err := http.DefaultClient.Do(req)
-		if err != nil {
-			return fmt.Errorf("error while sending PUT request: %q", err)
-		}
-		if resp.StatusCode != http.StatusCreated {
-			return fmt.Errorf("error while making PUT request: %s", http.StatusText(resp.StatusCode))
-		}
-		fmt.Printf("Successfully added: %s:\"%s\" to remote vile store\n", args[0], args[1])
-		return nil
+		return actions.Add(args, viper.GetViper())
 	},
 }
 
