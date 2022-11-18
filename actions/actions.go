@@ -70,7 +70,7 @@ func Add(args []string, v *viper.Viper) error {
 	if resp.StatusCode != http.StatusCreated {
 		return fmt.Errorf("error while making PUT request: %s", http.StatusText(resp.StatusCode))
 	}
-	fmt.Printf("Successfully added: %s:\"%s\" to remote vile store\n", args[0], args[1])
+	fmt.Printf("Successfully added %s:\"%s\" to remote vile store\n", args[0], args[1])
 	return nil
 }
 
