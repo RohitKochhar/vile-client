@@ -2,6 +2,8 @@
 
 Command Line Interface (CLI) for vile servers with full client-side encryption
 
+To see information on the vile key-value store, consult the [repository docs](https://github.com/RohitKochhar/vile)
+
 ### Synopsis
 
 
