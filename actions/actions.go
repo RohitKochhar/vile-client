@@ -2,6 +2,7 @@ package actions
 
 import (
 	"bytes"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"net/http"
@@ -18,7 +19,7 @@ func getHttpUrl(args []string, v *viper.Viper) (string, error) {
 	port := v.Get("port")
 	secretKey := v.Get("secretKey")
 	if secretKey == nil {
-		return fmt.Sprintf("http://%s:%d/v1/key/%s", host, port, args[0]), nil
+		return fmt.Sprintf("https://%s:%d/v1/key/%s", host, port, args[0]), nil
 	}
 	// Encrypt the key value
 	encryptedKey, err := encryption.Encrypt(args[0], string(secretKey.(string)))
@@ -26,7 +27,7 @@ func getHttpUrl(args []string, v *viper.Viper) (string, error) {
 		return "", fmt.Errorf("error while encrypting key: %q", err)
 	}
 	// Return the formatted url
-	return fmt.Sprintf("http://%s:%d/v1/key/%s", host, port, encryptedKey), nil
+	return fmt.Sprintf("https://%s:%d/v1/key/%s", host, port, encryptedKey), nil
 }
 
 func Add(args []string, v *viper.Viper) error {
@@ -38,6 +39,8 @@ func Add(args []string, v *viper.Viper) error {
 		return fmt.Errorf("no key value pair provided")
 	}
 	// Send a PUT request to the remote server
+	// ToDo: Remove this once server certificate signing is automated
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	path, err := getHttpUrl(args, v)
 	if err != nil {
 		return fmt.Errorf("error while creating HTTP url: %q", err)
@@ -83,6 +86,8 @@ func Get(args []string, v *viper.Viper) error {
 		return fmt.Errorf("no key provided")
 	}
 	// Send a GET request to the path
+	// ToDo: Remove this once server certificate signing is automated
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	path, err := getHttpUrl(args, v)
 	if err != nil {
 		return fmt.Errorf("error while creating HTTP url: %q", err)
@@ -131,6 +136,8 @@ func Delete(args []string, v *viper.Viper) error {
 		return fmt.Errorf("no key provided")
 	}
 	// Send a DELETE request to the path
+	// ToDo: Remove this once server certificate signing is automated
+	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	path, err := getHttpUrl(args, v)
 	if err != nil {
 		return fmt.Errorf("error while creating HTTP url: %q", err)
