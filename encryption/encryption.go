@@ -3,7 +3,7 @@ package encryption
 import (
 	"crypto/aes"
 	"crypto/cipher"
-	"crypto/md5"
+	"crypto/sha256"
 	"encoding/base32"
 	"fmt"
 	"io"
@@ -12,7 +12,7 @@ import (
 
 // hashInput hashes the input bytes using the md5 Sum method
 func getGCMInstance(secretKey string) (cipher.AEAD, error) {
-	hashedSecretKey := md5.Sum([]byte(secretKey))
+	hashedSecretKey := sha256.Sum256([]byte(secretKey))
 	aesBlock, err := aes.NewCipher([]byte(hashedSecretKey[:]))
 	if err != nil {
 		return nil, fmt.Errorf("unexpected error while hasing secret key: %q", err)
