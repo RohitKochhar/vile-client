@@ -1,16 +1,23 @@
-## vile docs
+## vile check
 
-Generate documentation for your command
+Verifies the vile server is up and running
+
+### Synopsis
+
+
+Verifies the vile server is up and running
+
+Sends a request to the liveness path of vile and returns the result
+
 
 ```
-vile docs [flags]
+vile check [flags]
 ```
 
 ### Options
 
 ```
-  -d, --dir string   Destination directory for docs
-  -h, --help         help for docs
+  -h, --help   help for check
 ```
 
 ### Options inherited from parent commands

@@ -1,23 +1,26 @@
-## vile delete
+## vile rename
 
-Removes a value from remote vile server
+Rename changes the name of the key used to store a value
 
 ### Synopsis
 
 
-Removes a value from remote vile server
+Rename changes the name of the key used to store a value
 
-Removes the stored value assocaited with the provided key from the the remote vile server
+Rename is equivalent to: 
+	vile get {OLD_KEY}
+	vile add {NEW_KEY} {GET_RESULT}
+	vile delete {OLD_KEY}
 	
 
 ```
-vile delete {KEY} [flags]
+vile rename {OLD_KEY} {NEW_KEY} [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for delete
+  -h, --help   help for rename
 ```
 
 ### Options inherited from parent commands
