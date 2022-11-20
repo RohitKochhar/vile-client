@@ -58,5 +58,4 @@ func Get(args []string, v *viper.Viper) (string, error) {
 	default:
 		return "", fmt.Errorf("unsupported Content-Type: %q", r.Header.Get("Content-Type"))
 	}
-	return "", nil
 }
