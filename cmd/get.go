@@ -38,7 +38,8 @@ Gets a value from remote vile server
 Retrieves the stored value associated with the provided key from the remote vile server
 	`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return actions.Get(args, viper.GetViper())
+		_, err := actions.Get(args, viper.GetViper())
+		return err
 	},
 }
 
