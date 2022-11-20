@@ -52,6 +52,6 @@ var docsCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(docsCmd)
+	// rootCmd.AddCommand(docsCmd)
 	docsCmd.Flags().StringP("dir", "d", "", "Destination directory for docs")
 }
