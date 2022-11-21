@@ -9,18 +9,13 @@ import (
 	"github.com/spf13/viper"
 )
 
-func Delete(args []string, v *viper.Viper) error {
-	if len(args) > 1 {
-		// ToDo: Add support for multiple values
-		return fmt.Errorf("cannot get multiple values")
-	}
-	if len(args) == 0 {
-		return fmt.Errorf("no key provided")
-	}
+// Delete takes an array containing a single key
+
+func Delete(key string, v *viper.Viper) error {
 	// Send a DELETE request to the path
 	// ToDo: Remove this once server certificate signing is automated
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	path, err := getHttpUrl(args[0], v)
+	path, err := getHttpUrl(key, v)
 	if err != nil {
 		return fmt.Errorf("error while creating HTTP url: %q", err)
 	}
@@ -40,6 +35,6 @@ func Delete(args []string, v *viper.Viper) error {
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("error while making DELETE request: %s", http.StatusText(resp.StatusCode))
 	}
-	fmt.Printf("Successfully removed %s from remote vile store\n", args[0])
+	fmt.Printf("Successfully removed %s from remote vile store\n", key)
 	return nil
 }

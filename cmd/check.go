@@ -38,7 +38,7 @@ Verifies the vile server is up and running
 Sends a request to the liveness path of vile and returns the result
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		_, err := actions.Check(viper.GetViper())
+		err := actions.Check(viper.GetViper())
 		return err
 	},
 }

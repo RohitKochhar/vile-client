@@ -10,18 +10,18 @@ import (
 	"github.com/spf13/viper"
 )
 
-func Add(args []string, v *viper.Viper) error {
-	// Check that we have been given a valid number of args
-	if len(args) > 2 {
-		return fmt.Errorf("cannot add multiple key value pairs")
-	}
-	if len(args) < 2 {
-		return fmt.Errorf("no key value pair provided")
-	}
+// Add adds the provided key value pair to a vile server specified from the config
+// it takes two strings (key, value), and a viper configuration instance
+// and returns an error if the PUT process could not be completed
+func Add(key, value string, v *viper.Viper) error {
+	// Check the input is value
+	// if err := sanitizeInput(key); err != nil {
+	// 	return err
+	// }
 	// Send a PUT request to the remote server
 	// ToDo: Remove this once server certificate signing is automated
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	path, err := getHttpUrl(args[0], v)
+	path, err := getHttpUrl(key, v)
 	if err != nil {
 		return fmt.Errorf("error while creating HTTP url: %q", err)
 	}
@@ -29,9 +29,9 @@ func Add(args []string, v *viper.Viper) error {
 	secretKey := v.Get("secretKey")
 	var val *bytes.Buffer
 	if secretKey == nil {
-		val = bytes.NewBuffer([]byte(args[1]))
+		val = bytes.NewBuffer([]byte(value))
 	} else {
-		encryptedValue, err := encryption.Encrypt(args[1], secretKey.(string))
+		encryptedValue, err := encryption.Encrypt(value, secretKey.(string))
 		if err != nil {
 			return fmt.Errorf("error while encrypyting value: %q", err)
 		}
@@ -53,6 +53,6 @@ func Add(args []string, v *viper.Viper) error {
 	if resp.StatusCode != http.StatusCreated {
 		return fmt.Errorf("error while making PUT request: %s", http.StatusText(resp.StatusCode))
 	}
-	fmt.Printf("Successfully added %s:\"%s\" to remote vile store\n", args[0], args[1])
+	fmt.Printf("Successfully added %s:\"%s\" to remote vile store\n", key, value)
 	return nil
 }

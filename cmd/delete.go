@@ -22,6 +22,7 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"fmt"
 	"rohitsingh/vile/vile/actions"
 
 	"github.com/spf13/cobra"
@@ -38,7 +39,14 @@ Removes a value from remote vile server
 Removes the stored value assocaited with the provided key from the the remote vile server
 	`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return actions.Delete(args, viper.GetViper())
+		if len(args) > 1 {
+			// ToDo: Add support for multiple values
+			return fmt.Errorf("cannot get multiple values")
+		}
+		if len(args) == 0 {
+			return fmt.Errorf("no key provided")
+		}
+		return actions.Delete(args[0], viper.GetViper())
 	},
 }
 

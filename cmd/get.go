@@ -22,6 +22,7 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"fmt"
 	"rohitsingh/vile/vile/actions"
 
 	"github.com/spf13/cobra"
@@ -38,7 +39,14 @@ Gets a value from remote vile server
 Retrieves the stored value associated with the provided key from the remote vile server
 	`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		_, err := actions.Get(args, viper.GetViper())
+		if len(args) > 1 {
+			// ToDo: Add support for multiple values
+			return fmt.Errorf("cannot get multiple values")
+		}
+		if len(args) == 0 {
+			return fmt.Errorf("no key provided")
+		}
+		_, err := actions.Get(args[0], viper.GetViper())
 		return err
 	},
 }

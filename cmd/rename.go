@@ -22,6 +22,7 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"fmt"
 	"rohitsingh/vile/vile/actions"
 
 	"github.com/spf13/cobra"
@@ -41,7 +42,11 @@ Rename is equivalent to:
 	vile delete {OLD_KEY}
 	`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return actions.Rename(args, viper.GetViper())
+		// Check that we have been given two arguments
+		if len(args) != 2 {
+			return fmt.Errorf("error: Rename takes two arguments (vile rename {OLD_KEY} {NEW_KEY})")
+		}
+		return actions.Rename(args[0], args[1], viper.GetViper())
 	},
 }
 

@@ -2,6 +2,7 @@ package actions
 
 import (
 	"crypto/tls"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -11,18 +12,16 @@ import (
 	"github.com/spf13/viper"
 )
 
-func Get(args []string, v *viper.Viper) (string, error) {
-	if len(args) > 1 {
-		// ToDo: Add support for multiple values
-		return "", fmt.Errorf("cannot get multiple values")
-	}
-	if len(args) == 0 {
-		return "", fmt.Errorf("no key provided")
-	}
+var ErrKeyNotFound = errors.New("error: could not find provided key in vile store")
+
+// Get fetches the value associated with the provided key
+// from the store described by the provided viper configuration
+// and returns an error if the process could not be completed.
+func Get(key string, v *viper.Viper) (string, error) {
 	// Send a GET request to the path
 	// ToDo: Remove this once server certificate signing is automated
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-	path, err := getHttpUrl(args[0], v)
+	path, err := getHttpUrl(key, v)
 	if err != nil {
 		return "", fmt.Errorf("error while creating HTTP url: %q", err)
 	}
@@ -40,7 +39,7 @@ func Get(args []string, v *viper.Viper) (string, error) {
 			// Check if we need to decrypt the value
 			secretKey := v.Get("secretKey")
 			if secretKey == nil {
-				print(string(body))
+				fmt.Println(string(body))
 				return "", nil
 			} else {
 				decodedVal, err := encryption.Decrypt(string(body), secretKey.(string))
@@ -48,13 +47,14 @@ func Get(args []string, v *viper.Viper) (string, error) {
 					return "", fmt.Errorf("error while decrypting value: %q", err)
 				}
 				fmt.Println(string(decodedVal))
+				return string(decodedVal), nil
 			}
 		}
 		if r.StatusCode == http.StatusNotFound {
-			fmt.Printf("Key \"%s\" was not found\n", args[0])
-			return "", nil
+			fmt.Printf("Key \"%s\" was not found\n", key)
+			return "", ErrKeyNotFound
 		}
-		return string(body), nil
+		return "", fmt.Errorf("unexpected error occured while getting value")
 	default:
 		return "", fmt.Errorf("unsupported Content-Type: %q", r.Header.Get("Content-Type"))
 	}

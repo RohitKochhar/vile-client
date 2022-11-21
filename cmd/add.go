@@ -22,6 +22,7 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"fmt"
 	"rohitsingh/vile/vile/actions"
 
 	"github.com/spf13/cobra"
@@ -38,7 +39,14 @@ Adds a value to remote vile server
 Adds the provided key value pair to the remote vile server
 	`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return actions.Add(args, viper.GetViper())
+		// Check that we have been given a valid number of args
+		if len(args) > 2 {
+			return fmt.Errorf("cannot add multiple key value pairs")
+		}
+		if len(args) < 2 {
+			return fmt.Errorf("no key value pair provided")
+		}
+		return actions.Add(args[0], args[1], viper.GetViper())
 	},
 }
 

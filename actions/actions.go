@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"regexp"
 	"rohitsingh/vile/vile/encryption"
 
 	"github.com/spf13/viper"
@@ -23,4 +24,12 @@ func getHttpUrl(key string, v *viper.Viper) (string, error) {
 	}
 	// Return the formatted url
 	return fmt.Sprintf("https://%s:%d/v1/key/%s", host, port, encryptedKey), nil
+}
+
+func sanitizeInput(in string) error {
+	r, _ := regexp.Compile("^([/ Q]*$)")
+	if r.MatchString(in) {
+		return fmt.Errorf("error: provided value %s contains illegal character", in)
+	}
+	return nil
 }
