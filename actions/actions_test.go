@@ -3,7 +3,9 @@ package actions
 import (
 	"errors"
 	"fmt"
+	"math"
 	"os"
+	"strconv"
 	"testing"
 
 	"github.com/spf13/cobra"
@@ -129,7 +131,8 @@ func TestAddGetDeleteGetAction(t *testing.T) {
 func TestIntegration(t *testing.T) {
 	// Define key value pair
 	key := "integrationTest"
-	value := "intergration Test Value"
+	numVal := 44.55
+	value := fmt.Sprintf("%f", numVal)
 	v := viper.GetViper()
 	// Test the connection
 	TestCheckAction(t)
@@ -183,5 +186,108 @@ func TestIntegration(t *testing.T) {
 	}
 	if emptyVal != "" {
 		t.Fatalf("expected returned get value to be empty, instead got %s", emptyNewVal)
+	}
+}
+
+// TestIncrement tests adding and subtracting for various values
+func TestIncrement(t *testing.T) {
+	// Using table-driven testing
+	testCases := []struct {
+		name        string  // name of test
+		key         string  // key to be written
+		val         float64 // value to be written
+		amt         float64 // Amount to add
+		expectedErr error   // expected error
+	}{
+		{
+			name: "SimpleIntAdd",
+			key:  "simpleIntAddKey",
+			val:  10,
+			amt:  20,
+		},
+		{
+			name: "SimpleIntSubtract",
+			key:  "simpleIntSubtractKey",
+			val:  44,
+			amt:  -33,
+		},
+		{
+			name: "SimpleFloatAdd",
+			key:  "simpleFloatAddKey",
+			val:  419.999,
+			amt:  123.995,
+		},
+		{
+			name: "SimpleFloatSubtract",
+			key:  "simpleFloatSubtractKey",
+			val:  1127.995,
+			amt:  424.004,
+		},
+		{
+			name: "LargeIntAdd",
+			key:  "largeIntAddKey",
+			val:  12345678910111213,
+			amt:  13121110987654321,
+		},
+		{
+			name: "LargeIntSubtract",
+			key:  "largeIntSubtractKey",
+			val:  25021961,
+			amt:  -1341034190734,
+		},
+		{
+			name: "LargeFloatAdd",
+			key:  "largeFloatAddKey",
+			val:  13846123046.13419783,
+			amt:  13413481341.13413847,
+		},
+		{
+			name: "LargeFloatSubtract",
+			key:  "largeFloatSubtractKey",
+			val:  13846123046.13419783,
+			amt:  -9993481341.99912947,
+		},
+	}
+	// Check the connection is up
+	TestCheckAction(t)
+	v := viper.GetViper()
+	// Iterate through test cases
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Add the key value pair and get it back
+			if err := Add(tc.key, fmt.Sprintf("%f", tc.val), v); err != nil {
+				t.Fatalf("error while adding value: %q", err)
+			}
+			// Get the value back
+			gotVal, err := Get(tc.key, v)
+			if err != nil {
+				t.Fatalf("error while getting value: %q", err)
+			}
+			if gotVal != fmt.Sprintf("%f", tc.val) {
+				t.Fatalf("incorrect value returned, expected %s, got %s", fmt.Sprintf("%f", tc.val), gotVal)
+			}
+			// Try to add the inc val
+			if err := Increment(tc.key, tc.amt, v); err != nil {
+				t.Fatalf("error while incrementing value: %q", err)
+			}
+			// Get the value again
+			incedVal, err := Get(tc.key, v)
+			if err != nil {
+				t.Fatalf("error while getting value: %q", err)
+			}
+			// Check that it is what we would expect
+			i, err := strconv.ParseFloat(incedVal, 64)
+			if err != nil {
+				t.Fatalf("error while parsing stored incremented amount: %q", err)
+			}
+			// don't check equality directly, give some error bounds (+/- 0.0000000001%)
+			if !(math.Abs(i-(tc.val+tc.amt)) < 0.000000000001) {
+				t.Fatalf("arithmatic doesn't line up, expected %f got %f", tc.val+tc.amt, i)
+			}
+			// Delete the pair to cleanup
+			if err := Delete(tc.key, v); err != nil {
+				t.Fatalf("error while deleting key from server: %q", err)
+			}
+		})
 	}
 }

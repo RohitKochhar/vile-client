@@ -46,7 +46,8 @@ Retrieves the stored value associated with the provided key from the remote vile
 		if len(args) == 0 {
 			return fmt.Errorf("no key provided")
 		}
-		_, err := actions.Get(args[0], viper.GetViper())
+		val, err := actions.Get(args[0], viper.GetViper())
+		fmt.Println(string(val))
 		return err
 	},
 }

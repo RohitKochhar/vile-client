@@ -39,14 +39,12 @@ func Get(key string, v *viper.Viper) (string, error) {
 			// Check if we need to decrypt the value
 			secretKey := v.Get("secretKey")
 			if secretKey == nil {
-				fmt.Println(string(body))
-				return "", nil
+				return string(body), nil
 			} else {
 				decodedVal, err := encryption.Decrypt(string(body), secretKey.(string))
 				if err != nil {
 					return "", fmt.Errorf("error while decrypting value: %q", err)
 				}
-				fmt.Println(string(decodedVal))
 				return string(decodedVal), nil
 			}
 		}
